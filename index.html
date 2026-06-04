@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Developer Toolkit Ultimate</title>
+<style>
+body{margin:0;background:#121212;color:#fff;font-family:Arial;text-align:center}
+#menu{position:fixed;top:10px;right:15px;font-size:32px;cursor:pointer;z-index:1000}
+#sidebar{position:fixed;left:-260px;top:0;width:250px;height:100%;background:#222;transition:.3s;padding-top:60px}
+#sidebar.open{left:0}
+#sidebar button{width:90%;margin:8px;padding:12px}
+.page{padding-top:60px}
+button,input{margin:5px;padding:8px}
+</style>
+</head>
+<body>
+<div id="menu" onclick="toggleSidebar()">☰</div>
+
+<div id="sidebar">
+<h3>Developer Tools</h3>
+<button onclick="showPage('maps')">Maps Generator</button>
+<button onclick="showPage('upscale')">Image Upscaler</button>
+<button onclick="showPage('effects')">Image Effects</button>
+</div>
+
+<div id="maps" class="page">
+<h1>Maps Generator</h1>
+<p>Height, Normal, AO, Mask, Metallic, Smoothness</p>
+</div>
+
+<div id="upscale" class="page" style="display:none">
+<h1>Image Upscaler</h1>
+<input type="file">
+<input type="number" value="2" min="2" max="8">
+<button>Upscale</button>
+</div>
+
+<div id="effects" class="page" style="display:none">
+<h1>Image Effects</h1>
+<button>Noise</button>
+<button>Blur</button>
+<button>Sharpen</button>
+<button>Film Grain</button>
+<button>Vignette</button>
+</div>
+
+<script>
+function toggleSidebar(){
+ document.getElementById('sidebar').classList.toggle('open');
+}
+function showPage(id){
+ ['maps','upscale','effects'].forEach(p=>document.getElementById(p).style.display='none');
+ document.getElementById(id).style.display='block';
+}
+</script>
+</body>
+</html>
