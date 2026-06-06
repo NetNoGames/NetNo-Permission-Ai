@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Developer Toolkit Ultimate</title>
+<style>
+body{margin:0;background:#121212;color:white;font-family:Arial;text-align:center}
+#menu{position:fixed;top:10px;right:15px;font-size:32px;cursor:pointer;z-index:1000}
+#sidebar{position:fixed;left:-260px;top:0;width:250px;height:100%;background:#222;transition:.3s;padding-top:60px;z-index:999}
+#sidebar.open{left:0}
+#sidebar button{width:90%;margin:8px;padding:12px}
+.page{padding-top:60px}
+canvas{border:1px solid #444;max-width:320px;margin:10px}
+button,input{margin:5px;padding:8px}
+</style>
+</head>
+<body>
+
+<div id="menu" onclick="toggleSidebar()">☰</div>
+
+<div id="sidebar">
+<h3>Developer Tools</h3>
+<button onclick="showPage('maps')">Maps Generator</button>
+<button onclick="showPage('upscale')">Image Upscaler</button>
+<button onclick="showPage('effects')">Image Effects</button>
+</div>
+
+<div id="maps" class="page">
+<h1>Maps Generator</h1>
+<p>Use your existing map generator code here (unchanged).</p>
+</div>
+
+<div id="upscale" class="page" style="display:none">
+<h1>Image Upscaler</h1>
+<input type="file" id="upUpload"><br>
+<select id="scale">
+<option value="2">2x</option>
+<option value="4">4x</option>
+<option value="8">8x</option>
+</select>
+<br>
+<canvas id="upCanvas"></canvas>
+</div>
+
+<div id="effects" class="page" style="display:none">
+<h1>Image Effects</h1>
+<input type="file" id="fxUpload"><br>
+
+<label>Intensity</label>
+<input type="range" id="intensity" min="1" max="100" value="50"><br>
+
+<button>Noise</button>
+<button>Blur</button>
+<button>Sharpen</button>
+<button>Film Grain</button>
+<button>Vignette</button>
+
+<br>
+<canvas id="fxCanvas"></canvas>
+</div>
+
+<script>
+function toggleSidebar(){
+document.getElementById('sidebar').classList.toggle('open');
+}
+function showPage(id){
+['maps','upscale','effects'].forEach(p=>{
+document.getElementById(p).style.display='none';
+});
+document.getElementById(id).style.display='block';
+}
+</script>
+
+</body>
+</html>
