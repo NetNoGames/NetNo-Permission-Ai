@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Texture Toolkit + Docs Pro</title>
+<style>
+body{margin:0;font-family:Arial;background:#202124;color:#e8eaed}
+.top{height:50px;background:#171717;display:flex;align-items:center;justify-content:flex-end;padding:0 15px}
+.menu{cursor:pointer;font-size:28px}
+.sidebar{position:fixed;left:-260px;top:0;width:260px;height:100%;background:#111;transition:.3s;padding-top:60px}
+.sidebar.open{left:0}
+.sidebar button{width:90%;margin:8px;padding:12px}
+.docs-layout{display:flex;height:calc(100vh - 50px)}
+.doclist{width:260px;background:#2b2b2b;padding:10px;overflow:auto}
+.editorArea{flex:1;padding:10px}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}
+.tab{background:#3c4043;padding:8px 12px;cursor:pointer}
+textarea{width:100%;height:70vh;background:#1e1e1e;color:white}
+.toolbar{display:flex;gap:10px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="top"><div class="menu" onclick="toggleMenu()">☰</div></div>
+
+<div id="sidebar" class="sidebar">
+<button onclick="show('maps')">Maps Generator</button>
+<button onclick="show('docs')">Documents</button>
+</div>
+
+<div id="maps" style="padding:20px">
+<h2>Maps Generator</h2>
+<p>Paste your original map generator code here.</p>
+</div>
+
+<div id="docs" style="display:none">
+<div class="docs-layout">
+<div class="doclist">
+<h3>Documents</h3>
+<button onclick="newDoc()">+ Create Document</button>
+<div id="docsList"></div>
+</div>
+
+<div class="editorArea">
+<input id="docName" placeholder="Document Name"><br><br>
+
+<div class="toolbar">
+<select id="format">
+<option>Normal Text</option>
+<option>Heading 1</option>
+<option>Heading 2</option>
+<option>Heading 3</option>
+<option>Code Block</option>
+<option>Bullet List</option>
+</select>
+
+<select id="exportType">
+<option>TXT</option>
+<option>HTML</option>
+<option>MD</option>
+<option>DOCX</option>
+<option>PDF</option>
+</select>
+
+<button onclick="exportDoc()">Download</button>
+<button onclick="addTab()">+ Tab</button>
+</div>
+
+<div id="tabs" class="tabs"></div>
+<textarea id="editor"></textarea>
+</div>
+</div>
+</div>
+
+<script>
+let docs=[];let currentDoc=-1;let currentTab=0;
+
+function toggleMenu(){sidebar.classList.toggle('open');}
+function show(id){maps.style.display='none';docs.style.display='none';document.getElementById(id).style.display='block';}
+
+function newDoc(){
+docs.push({name:'Untitled '+(docs.length+1),tabs:[{name:'Tab 1',text:''}]});
+renderDocs(); openDoc(docs.length-1);
+}
+
+function renderDocs(){
+docsList.innerHTML='';
+docs.forEach((d,i)=>{
+let div=document.createElement('div');
+div.innerHTML='📄 '+d.name;
+div.style.cursor='pointer';
+div.onclick=()=>openDoc(i);
+docsList.appendChild(div);
+});
+}
+
+function openDoc(i){
+currentDoc=i; currentTab=0;
+docName.value=docs[i].name;
+renderTabs();
+editor.value=docs[i].tabs[0].text;
+}
+
+function renderTabs(){
+tabs.innerHTML='';
+docs[currentDoc].tabs.forEach((t,i)=>{
+let b=document.createElement('div');
+b.className='tab';
+b.textContent=t.name;
+b.onclick=()=>{save();currentTab=i;editor.value=t.text};
+tabs.appendChild(b);
+});
+}
+
+function addTab(){
+if(currentDoc<0)return;
+docs[currentDoc].tabs.push({name:'Tab '+(docs[currentDoc].tabs.length+1),text:''});
+renderTabs();
+}
+
+function save(){
+if(currentDoc<0)return;
+docs[currentDoc].tabs[currentTab].text=editor.value;
+}
+
+setInterval(save,1000);
+
+function exportDoc(){
+save();
+const type=exportType.value.toLowerCase();
+const a=document.createElement('a');
+const blob=new Blob([editor.value],{type:'text/plain'});
+a.href=URL.createObjectURL(blob);
+a.download=(docName.value||'document')+'.'+type;
+a.click();
+}
+</script>
+</body>
+</html>
