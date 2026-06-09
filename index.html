@@ -1,323 +1,323 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="UTF-8">
-<title>Texture Toolkit + Documents</title>
-<style>
-body{margin:0;background:#121212;color:#fff;font-family:Arial}
-.topbar{height:50px;background:#1b1b1b;display:flex;justify-content:flex-end;align-items:center;padding:0 15px}
-.menu{font-size:28px;cursor:pointer}
-.sidebar{position:fixed;left:-260px;top:0;width:260px;height:100%;background:#222;transition:.3s;z-index:999;padding-top:60px}
-.sidebar.open{left:0}
-.sidebar button{display:block;width:90%;margin:10px auto;padding:12px}
-.section{padding:15px}
-.docTabs{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}
-.docTab{background:#333;padding:8px 12px;cursor:pointer;border-radius:4px}
-#editor{width:100%;height:450px;background:#1e1e1e;color:#fff;border:1px solid #444;padding:10px;box-sizing:border-box}
-.exportBtns button{margin:5px}
-</style>
+    <meta charset="UTF-8">
+    <title>Texture Toolkit + Documents</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
 
-<div class="topbar">
-<div class="menu" onclick="toggleSidebar()">☰</div>
-</div>
+    <div class="topbar">
+        <div class="menu" onclick="toggleSidebar()">☰</div>
+    </div>
 
-<div id="sidebar" class="sidebar">
-<button onclick="showSection('maps')">Maps Generator</button>
-<button onclick="showSection('docs')">Documents</button>
-</div>
+    <div id="sidebar" class="sidebar">
+        <button onclick="showSection('maps')">Maps Generator</button>
+        <button onclick="showSection('docs')">Documents</button>
+    </div>
 
-<div id="mapsSection" class="section">
+    <div id="mapsSection" class="section">
 
+        <h1>Developer Texture Toolkit Pro</h1>
 
-<h1>Developer Texture Toolkit Pro</h1>
+        <input type="file" id="upload"><br>
 
-<input type="file" id="upload"><br>
+        <div class="controls">
+            <div>
+                <label>Normal Strength</label>
+                <input type="range" id="normalStrength" min="1" max="10" value="3">
+            </div>
+            <div>
+                <label>AO Strength</label>
+                <input type="range" id="aoStrength" min="1" max="10" value="3">
+            </div>
+        </div>
 
-<div class="controls">
-<label>Normal Strength</label>
-<input type="range" id="normalStrength" min="1" max="10" value="3">
-<label>AO Strength</label>
-<input type="range" id="aoStrength" min="1" max="10" value="3">
-</div>
+        <button onclick="generateHeight()">Height</button>
+        <button onclick="generateNormal()">Normal</button>
+        <button onclick="generateAO()">AO</button>
+        <button onclick="generateMetallic()">Metallic</button>
+        <button onclick="generateSmoothness()">Smoothness</button>
+        <button onclick="generateEmission()">Emission</button>
+        <button onclick="generateSpecular()">Specular</button>
+        <button onclick="generateOpacity()">Opacity</button>
 
-<button onclick="generateHeight()">Height</button>
-<button onclick="generateNormal()">Normal</button>
-<button onclick="generateAO()">AO</button>
-<button onclick="generateMetallic()">Metallic</button>
-<button onclick="generateSmoothness()">Smoothness</button>
-<button onclick="generateEmission()">Emission</button>
-<button onclick="generateSpecular()">Specular</button>
-<button onclick="generateOpacity()">Opacity</button>
+        <hr>
 
-<hr>
+        <button onclick="resizeTex(512)">512</button>
+        <button onclick="resizeTex(1024)">1024</button>
+        <button onclick="resizeTex(2048)">2K</button>
+        <button onclick="resizeTex(4096)">4K</button>
 
-<button onclick="resizeTex(512)">512</button>
-<button onclick="resizeTex(1024)">1024</button>
-<button onclick="resizeTex(2048)">2K</button>
-<button onclick="resizeTex(4096)">4K</button>
+        <button onclick="generatePalette()">Palette</button>
 
-<button onclick="generatePalette()">Palette</button>
+        <hr>
 
-<hr>
+        <canvas id="source"></canvas>
+        <canvas id="output"></canvas>
 
-<canvas id="source"></canvas>
-<canvas id="output"></canvas>
+        <div id="palette"></div>
 
-<div id="palette"></div>
+        <hr>
 
-<hr>
+        <button onclick="downloadPNG()">Download PNG</button>
+        <button onclick="downloadJPG()">Download JPG</button>
+        <button onclick="generateAllMaps()">Generate All Maps</button>
 
-<button onclick="downloadPNG()">Download PNG</button>
-<button onclick="downloadJPG()">Download JPG</button>
-<button onclick="generateAllMaps()">Generate All Maps</button>
+        <script>
+            const upload = document.getElementById("upload");
+            const sourceCanvas = document.getElementById("source");
+            const sourceCtx = sourceCanvas.getContext("2d");
+            const outputCanvas = document.getElementById("output");
+            const outputCtx = outputCanvas.getContext("2d");
 
-<script>
-const upload=document.getElementById("upload");
-const sourceCanvas=document.getElementById("source");
-const sourceCtx=sourceCanvas.getContext("2d");
-const outputCanvas=document.getElementById("output");
-const outputCtx=outputCanvas.getContext("2d");
+            let imageLoaded = false;
 
-let imageLoaded=false;
+            upload.addEventListener("change", e => {
+                const file = e.target.files[0];
+                const img = new Image();
 
-upload.addEventListener("change",e=>{
-const file=e.target.files[0];
-const img=new Image();
+                img.onload = () => {
+                    sourceCanvas.width = img.width;
+                    sourceCanvas.height = img.height;
+                    outputCanvas.width = img.width;
+                    outputCanvas.height = img.height;
+                    sourceCtx.drawImage(img, 0, 0);
+                    outputCtx.drawImage(img, 0, 0);
+                    imageLoaded = true;
+                };
 
-img.onload=()=>{
-sourceCanvas.width=img.width;
-sourceCanvas.height=img.height;
-outputCanvas.width=img.width;
-outputCanvas.height=img.height;
-sourceCtx.drawImage(img,0,0);
-outputCtx.drawImage(img,0,0);
-imageLoaded=true;
-};
+                img.src = URL.createObjectURL(file);
+            });
 
-img.src=URL.createObjectURL(file);
-});
+            function getGray(img) {
+                const d = img.data;
+                for (let i = 0; i < d.length; i += 4) {
+                    let g = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
+                    d[i] = d[i + 1] = d[i + 2] = g;
+                }
+                return img;
+            }
 
-function getGray(img){
-const d=img.data;
-for(let i=0;i<d.length;i+=4){
-let g=d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114;
-d[i]=d[i+1]=d[i+2]=g;
-}
-return img;
-}
+            function generateHeight() {
+                if (!imageLoaded) return;
+                let img = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+                outputCtx.putImageData(getGray(img), 0, 0);
+            }
 
-function generateHeight(){
-if(!imageLoaded)return;
-let img=sourceCtx.getImageData(0,0,sourceCanvas.width,sourceCanvas.height);
-outputCtx.putImageData(getGray(img),0,0);
-}
+            function generateSmoothness() {
+                if (!imageLoaded) return;
+                let img = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+                let d = img.data;
+                for (let i = 0; i < d.length; i += 4) {
+                    let g = 255 - (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114);
+                    d[i] = d[i + 1] = d[i + 2] = g;
+                }
+                outputCtx.putImageData(img, 0, 0);
+            }
 
-function generateSmoothness(){
-if(!imageLoaded)return;
-let img=sourceCtx.getImageData(0,0,sourceCanvas.width,sourceCanvas.height);
-let d=img.data;
-for(let i=0;i<d.length;i+=4){
-let g=255-(d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114);
-d[i]=d[i+1]=d[i+2]=g;
-}
-outputCtx.putImageData(img,0,0);
-}
+            function generateAO() {
+                if (!imageLoaded) return;
+                let strength = parseInt(document.getElementById("aoStrength").value);
+                let img = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+                let d = img.data;
+                for (let i = 0; i < d.length; i += 4) {
+                    let g = (d[i] + d[i + 1] + d[i + 2]) / 3;
+                    g = Math.max(0, g - (strength * 12));
+                    d[i] = d[i + 1] = d[i + 2] = g;
+                }
+                outputCtx.putImageData(img, 0, 0);
+            }
 
-function generateAO(){
-if(!imageLoaded)return;
-let strength=parseInt(document.getElementById("aoStrength").value);
-let img=sourceCtx.getImageData(0,0,sourceCanvas.width,sourceCanvas.height);
-let d=img.data;
-for(let i=0;i<d.length;i+=4){
-let g=(d[i]+d[i+1]+d[i+2])/3;
-g=Math.max(0,g-(strength*12));
-d[i]=d[i+1]=d[i+2]=g;
-}
-outputCtx.putImageData(img,0,0);
-}
+            function generateMetallic() {
+                if (!imageLoaded) return;
+                let img = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+                let d = img.data;
+                for (let i = 0; i < d.length; i += 4) {
+                    let v = ((d[i] + d[i + 1] + d[i + 2]) / 3) > 128 ? 255 : 0;
+                    d[i] = d[i + 1] = d[i + 2] = v;
+                }
+                outputCtx.putImageData(img, 0, 0);
+            }
 
-function generateMetallic(){
-if(!imageLoaded)return;
-let img=sourceCtx.getImageData(0,0,sourceCanvas.width,sourceCanvas.height);
-let d=img.data;
-for(let i=0;i<d.length;i+=4){
-let v=((d[i]+d[i+1]+d[i+2])/3)>128?255:0;
-d[i]=d[i+1]=d[i+2]=v;
-}
-outputCtx.putImageData(img,0,0);
-}
+            function generateEmission() {
+                if (!imageLoaded) return;
+                let img = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+                let d = img.data;
+                for (let i = 0; i < d.length; i += 4) {
+                    d[i] = Math.min(255, d[i] * 1.6);
+                    d[i + 1] = Math.min(255, d[i + 1] * 1.6);
+                    d[i + 2] = Math.min(255, d[i + 2] * 1.6);
+                }
+                outputCtx.putImageData(img, 0, 0);
+            }
 
-function generateEmission(){
-if(!imageLoaded)return;
-let img=sourceCtx.getImageData(0,0,sourceCanvas.width,sourceCanvas.height);
-let d=img.data;
-for(let i=0;i<d.length;i+=4){
-d[i]=Math.min(255,d[i]*1.6);
-d[i+1]=Math.min(255,d[i+1]*1.6);
-d[i+2]=Math.min(255,d[i+2]*1.6);
-}
-outputCtx.putImageData(img,0,0);
-}
+            function generateSpecular() { generateEmission(); }
 
-function generateSpecular(){generateEmission();}
+            function generateOpacity() {
+                if (!imageLoaded) return;
+                let img = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+                let d = img.data;
+                for (let i = 0; i < d.length; i += 4) {
+                    let a = (d[i] + d[i + 1] + d[i + 2]) / 3;
+                    d[i] = 255; d[i + 1] = 255; d[i + 2] = 255; d[i + 3] = a;
+                }
+                outputCtx.putImageData(img, 0, 0);
+            }
 
-function generateOpacity(){
-if(!imageLoaded)return;
-let img=sourceCtx.getImageData(0,0,sourceCanvas.width,sourceCanvas.height);
-let d=img.data;
-for(let i=0;i<d.length;i+=4){
-let a=(d[i]+d[i+1]+d[i+2])/3;
-d[i]=255;d[i+1]=255;d[i+2]=255;d[i+3]=a;
-}
-outputCtx.putImageData(img,0,0);
-}
+            function generateNormal() {
+                if (!imageLoaded) return;
+                const strength = parseInt(document.getElementById("normalStrength").value);
+                const w = sourceCanvas.width, h = sourceCanvas.height;
+                const src = sourceCtx.getImageData(0, 0, w, h);
+                const dst = outputCtx.createImageData(w, h);
+                const s = src.data, d = dst.data;
 
-function generateNormal(){
-if(!imageLoaded)return;
-const strength=parseInt(document.getElementById("normalStrength").value);
-const w=sourceCanvas.width,h=sourceCanvas.height;
-const src=sourceCtx.getImageData(0,0,w,h);
-const dst=outputCtx.createImageData(w,h);
-const s=src.data,d=dst.data;
+                function ht(x, y) {
+                    x = Math.max(0, Math.min(w - 1, x));
+                    y = Math.max(0, Math.min(h - 1, y));
+                    let i = (y * w + x) * 4;
+                    return (s[i] + s[i + 1] + s[i + 2]) / 765;
+                }
 
-function ht(x,y){
-x=Math.max(0,Math.min(w-1,x));
-y=Math.max(0,Math.min(h-1,y));
-let i=(y*w+x)*4;
-return (s[i]+s[i+1]+s[i+2])/765;
-}
+                for (let y = 0; y < h; y++) {
+                    for (let x = 0; x < w; x++) {
+                        let dx = (ht(x + 1, y) - ht(x - 1, y)) * strength;
+                        let dy = (ht(x, y + 1) - ht(x, y - 1)) * strength;
+                        let dz = 1;
+                        let len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                        dx /= len; dy /= len; dz /= len;
+                        let i = (y * w + x) * 4;
+                        d[i] = (dx * 0.5 + 0.5) * 255;
+                        d[i + 1] = (dy * 0.5 + 0.5) * 255;
+                        d[i + 2] = (dz * 0.5 + 0.5) * 255;
+                        d[i + 3] = 255;
+                    }
+                }
+                outputCtx.putImageData(dst, 0, 0);
+            }
 
-for(let y=0;y<h;y++){
-for(let x=0;x<w;x++){
-let dx=(ht(x+1,y)-ht(x-1,y))*strength;
-let dy=(ht(x,y+1)-ht(x,y-1))*strength;
-let dz=1;
-let len=Math.sqrt(dx*dx+dy*dy+dz*dz);
-dx/=len;dy/=len;dz/=len;
-let i=(y*w+x)*4;
-d[i]=(dx*0.5+0.5)*255;
-d[i+1]=(dy*0.5+0.5)*255;
-d[i+2]=(dz*0.5+0.5)*255;
-d[i+3]=255;
-}
-}
-outputCtx.putImageData(dst,0,0);
-}
+            function resizeTex(size) {
+                if (!imageLoaded) return;
+                const c = document.createElement("canvas");
+                c.width = size; c.height = size;
+                c.getContext("2d").drawImage(sourceCanvas, 0, 0, size, size);
+                outputCanvas.width = size;
+                outputCanvas.height = size;
+                outputCtx.drawImage(c, 0, 0);
+            }
 
-function resizeTex(size){
-if(!imageLoaded)return;
-const c=document.createElement("canvas");
-c.width=size;c.height=size;
-c.getContext("2d").drawImage(sourceCanvas,0,0,size,size);
-outputCanvas.width=size;
-outputCanvas.height=size;
-outputCtx.drawImage(c,0,0);
-}
+            function generatePalette() {
+                if (!imageLoaded) return;
+                const img = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height).data;
+                let html = "";
+                for (let i = 0; i < 8; i++) {
+                    let p = Math.floor(Math.random() * (img.length / 4)) * 4;
+                    html += `<div style="display:inline-block;width:50px;height:50px;background:rgb(${img[p]},${img[p + 1]},${img[p + 2]});margin:3px"></div>`;
+                }
+                document.getElementById("palette").innerHTML = html;
+            }
 
-function generatePalette(){
-if(!imageLoaded)return;
-const img=sourceCtx.getImageData(0,0,sourceCanvas.width,sourceCanvas.height).data;
-let html="";
-for(let i=0;i<8;i++){
-let p=Math.floor(Math.random()*(img.length/4))*4;
-html+=`<div style="display:inline-block;width:50px;height:50px;background:rgb(${img[p]},${img[p+1]},${img[p+2]});margin:3px"></div>`;
-}
-document.getElementById("palette").innerHTML=html;
-}
+            function downloadPNG() {
+                const a = document.createElement("a");
+                a.href = outputCanvas.toDataURL("image/png");
+                a.download = "texture.png";
+                a.click();
+            }
 
-function downloadPNG(){
-const a=document.createElement("a");
-a.href=outputCanvas.toDataURL("image/png");
-a.download="texture.png";
-a.click();
-}
+            function downloadJPG() {
+                const a = document.createElement("a");
+                a.href = outputCanvas.toDataURL("image/jpeg", 0.95);
+                a.download = "texture.jpg";
+                a.click();
+            }
 
-function downloadJPG(){
-const a=document.createElement("a");
-a.href=outputCanvas.toDataURL("image/jpeg",0.95);
-a.download="texture.jpg";
-a.click();
-}
+            function generateAllMaps() {
+                alert("Generate Height, Normal, AO, Metallic, Smoothness, Emission using individual buttons. ZIP export can be added later.");
+            }
+        </script>
 
-function generateAllMaps(){
-alert("Generate Height, Normal, AO, Metallic, Smoothness, Emission using individual buttons. ZIP export can be added later.");
-}
-</script>
+    </div>
 
-</div>
+    <div id="docsSection" class="section" style="display:none">
+        <h2>Documents</h2>
 
-<div id="docsSection" class="section" style="display:none">
-<h2>Documents</h2>
+        <button onclick="createDoc()">+ New Tab</button>
 
-<button onclick="createDoc()">+ New Tab</button>
+        <div id="tabs" class="docTabs"></div>
 
-<div id="tabs" class="docTabs"></div>
+        <textarea id="editor" placeholder="Write document here..."></textarea>
 
-<textarea id="editor" placeholder="Write document here..."></textarea>
+        <div class="exportBtns">
+            <button onclick="exportTXT()">Export TXT</button>
+            <button onclick="exportHTML()">Export HTML</button>
+            <button onclick="exportMD()">Export MD</button>
+        </div>
+    </div>
 
-<div class="exportBtns">
-<button onclick="exportTXT()">Export TXT</button>
-<button onclick="exportHTML()">Export HTML</button>
-<button onclick="exportMD()">Export MD</button>
-</div>
-</div>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
 
-<script>
-function toggleSidebar(){
-document.getElementById('sidebar').classList.toggle('open');
-}
+        function showSection(id) {
+            document.getElementById('mapsSection').style.display = id === 'maps' ? 'block' : 'none';
+            document.getElementById('docsSection').style.display = id === 'docs' ? 'block' : 'none';
+        }
 
-function showSection(id){
-document.getElementById('mapsSection').style.display=id==='maps'?'block':'none';
-document.getElementById('docsSection').style.display=id==='docs'?'block':'none';
-}
+        let docs = [];
+        let active = -1;
 
-let docs=[];
-let active=-1;
+        function createDoc() {
+            const name = 'Document ' + (docs.length + 1);
+            docs.push({ name, text: '' });
+            renderTabs();
+            openDoc(docs.length - 1);
+        }
 
-function createDoc(){
-const name='Document '+(docs.length+1);
-docs.push({name,text:''});
-renderTabs();
-openDoc(docs.length-1);
-}
+        function renderTabs() {
+            const tabs = document.getElementById('tabs');
+            tabs.innerHTML = '';
+            docs.forEach((d, i) => {
+                let b = document.createElement('div');
+                b.className = 'docTab';
+                b.textContent = d.name;
+                b.onclick = () => openDoc(i);
+                tabs.appendChild(b);
+            });
+        }
 
-function renderTabs(){
-const tabs=document.getElementById('tabs');
-tabs.innerHTML='';
-docs.forEach((d,i)=>{
-let b=document.createElement('div');
-b.className='docTab';
-b.textContent=d.name;
-b.onclick=()=>openDoc(i);
-tabs.appendChild(b);
-});
-}
+        function openDoc(i) {
+            if (active >= 0) docs[active].text = document.getElementById('editor').value;
+            active = i;
+            document.getElementById('editor').value = docs[i].text;
+        }
 
-function openDoc(i){
-if(active>=0) docs[active].text=document.getElementById('editor').value;
-active=i;
-document.getElementById('editor').value=docs[i].text;
-}
+        editor.addEventListener('input', () => {
+            if (active >= 0) docs[active].text = editor.value;
+        });
 
-editor.addEventListener('input',()=>{
-if(active>=0) docs[active].text=editor.value;
-});
+        function downloadFile(name, content) {
+            const a = document.createElement('a');
+            const blob = new Blob([content], { type: 'text/plain' });
+            a.href = URL.createObjectURL(blob);
+            a.download = name;
+            a.click();
+        }
 
-function downloadFile(name,content){
-const a=document.createElement('a');
-const blob=new Blob([content],{type:'text/plain'});
-a.href=URL.createObjectURL(blob);
-a.download=name;
-a.click();
-}
-
-function exportTXT(){downloadFile('document.txt',editor.value);}
-function exportMD(){downloadFile('document.md',editor.value);}
-function exportHTML(){downloadFile('document.html','<html><body><pre>'+editor.value+'</pre></body></html>');}
-</script>
+        function exportTXT() { downloadFile('document.txt', editor.value); }
+        function exportMD() { downloadFile('document.md', editor.value); }
+        function exportHTML() { downloadFile('document.html', '<html><body><pre>' + editor.value + '</pre></body></html>'); }
+    </script>
 
 </body>
+
 </html>
